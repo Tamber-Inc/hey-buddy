@@ -12,8 +12,11 @@ declare module 'hey-buddy-onnx' {
   export class HeyBuddy {
     constructor(config: HeyBuddyConfig);
     wakeWords: Record<string, any>;
+    paused: boolean;
     onDetected(wakeWord: string, callback: () => void): void;
     onRecording(callback: (audio: Float32Array) => void): void;
     onProcessed(callback: (result: any) => void): void;
+    pause(): void;
+    unpause(): void;
   }
 }

@@ -125,6 +125,7 @@ export class HeyBuddy {
         this.frameIntervalEmaWeight = 0.1;
         this.frameTimeEma = 0;
         this.frameTimeEmaWeight = 0.1;
+        this.paused = false;
 
         this.speechStartCallbacks = [];
         this.speechEndCallbacks = [];
@@ -195,6 +196,26 @@ export class HeyBuddy {
      */
     onRecording(callback) {
         this.recordingCallbacks.push(callback);
+    }
+
+    /**
+     * Pause wake word detection and audio processing.
+     */
+    pause() {
+        if (this.debug) {
+            console.log("Pausing wake word detection");
+        }
+        this.paused = true;
+    }
+
+    /**
+     * Resume wake word detection and audio processing.
+     */
+    unpause() {
+        if (this.debug) {
+            console.log("Resuming wake word detection");
+        }
+        this.paused = false;
     }
 
     /**
@@ -314,6 +335,11 @@ export class HeyBuddy {
      * @param {Float32Array} audio - Audio samples.
      */
     async process(audio) {
+        // If paused, skip processing but still track timing
+        if (this.paused) {
+            return;
+        }
+
         // Start timer
         this.frameStart = (new Date()).getTime();
 
