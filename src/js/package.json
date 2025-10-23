@@ -31,7 +31,7 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "onnxruntime-web": "^1.19.0"
+    "onnxruntime-web": "^1.23.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",
