@@ -16,6 +16,8 @@ declare module 'hey-buddy-onnx' {
     onDetected(wakeWord: string, callback: () => void): void;
     onRecording(callback: (audio: Float32Array) => void): void;
     onProcessed(callback: (result: any) => void): void;
+    onSpeechStart(callback: () => void): void;
+    onSpeechEnd(callback: () => void): void;
     pause(): void;
     unpause(): void;
   }
