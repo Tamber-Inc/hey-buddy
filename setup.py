@@ -20,7 +20,7 @@ extra_deps = {
 setup(
     name="heybuddy",
     description="Hey Buddy is a tool for training wake-word-detecting neural networks for use in web browsers.",
-    version="0.2.0",
+    version="0.2.2",
     long_description=open("README.md", "r", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     license="Apache 2.0",
