@@ -113,140 +113,140 @@ To disable using these datasets, pass `--augmentation-no-default-background-data
 ## CLI Options
 
 ```
-Usage: heybuddy train [OPTIONS] PHRASE                         
-                                                                                   
-  Trains a wake word detection model.                                              
-                                                                                                                                                                       
-Options:                                                                           
-  --additional-phrase TEXT        Additional phrases to use for training.  
-  --wandb-entity TEXT             W&B entity to use for logging.           
-  --layer-dim INTEGER             Dimension of the linear layers to use for   
-                                  the model.  [default: 96]                   
+Usage: heybuddy train [OPTIONS] PHRASE
+
+  Trains a wake word detection model.
+
+Options:
+  --additional-phrase TEXT        Additional phrases to use for training.
+  --wandb-entity TEXT             W&B entity to use for logging.
+  --layer-dim INTEGER             Dimension of the linear layers to use for
+                                  the model.  [default: 96]
   --num-layers INTEGER            The number of perceptron blocks.  [default:
-                                  2]                                               
-  --num-heads INTEGER             The number of attention heads to use when        
-                                  using the transformer model.  [default: 1]       
-  --steps INTEGER                 Number of optimization steps to take.      
-                                  [default: 12500]                          
-  --stages INTEGER                Number of training stages.  [default: 3]  
+                                  2]
+  --num-heads INTEGER             The number of attention heads to use when
+                                  using the transformer model.  [default: 1]
+  --steps INTEGER                 Number of optimization steps to take.
+                                  [default: 12500]
+  --stages INTEGER                Number of training stages.  [default: 3]
 
   --learning-rate FLOAT           Learning rate for the optimizer.  [default:
-                                  0.001]                                           
-  --high-loss-threshold FLOAT     Threshold for high loss values (e.g. with  
+                                  0.001]
+  --high-loss-threshold FLOAT     Threshold for high loss values (e.g. with
                                   the default 0.001, a value is high-loss if
-                                  it's supposed to be 0 and is higher than  
+                                  it's supposed to be 0 and is higher than
                                   0.001 or supposed to be 1 and is lower than
-                                  0.999)  [default: 0.0001]       
-  --target-false-positive-rate FLOAT                                               
+                                  0.999)  [default: 0.0001]
+  --target-false-positive-rate FLOAT
                                   Target false positive rate for the model.
-                                  [default: 0.5]                              
-  --dynamic-negative-weight / --no-dynamic-negative-weight                         
+                                  [default: 0.5]
+  --dynamic-negative-weight / --no-dynamic-negative-weight
                                   Dynamically adjust the negative weight based
-                                  on target false positive rate at each       
+                                  on target false positive rate at each
                                   validation step (instead of in-between
                                   stages.)  [default: dynamic-negative-weight]
-  --negative-weight FLOAT         Negative weight for the loss function.     
+  --negative-weight FLOAT         Negative weight for the loss function.
                                   [default: 1.0]
-  --training-full-default-dataset                                                  
+  --training-full-default-dataset
                                   Use the full precalculated default training
                                   set.  [default: full]
-  --training-large-default-dataset                                                 
+  --training-large-default-dataset
                                   Use the large precalculated default training
                                   set.  [default: full]
-  --training-medium-default-dataset                                                
-                                  Use the medium precalculated default        
+  --training-medium-default-dataset
+                                  Use the medium precalculated default
                                   training set.  [default: full]
-  --training-no-default-dataset   Do not use a precalculated default training 
-                                  set.  [default: full]                       
+  --training-no-default-dataset   Do not use a precalculated default training
+                                  set.  [default: full]
   --training-dataset FILE         Use a custom precalculated training set.
-  --augment-phrase-prob FLOAT     Probability of augmenting the phrase.  
-                                  [default: 0.75]                            
+  --augment-phrase-prob FLOAT     Probability of augmenting the phrase.
+                                  [default: 0.75]
   --augment-phrase-default-words / --augment-phrase-no-default-words
                                   Use the default words for augmentation.
                                   [default: augment-phrase-default-words]
   --augment-phrase-word TEXT      Custom words to use for augmentation.
   --augmentation-default-background-dataset / --augmentation-no-default-background-dataset
                                   Use the default background dataset for
-                                  augmentation.  [default: augmentation-   
-                                  default-background-dataset]              
-  --augmentation-background-dataset TEXT                                           
-                                  Use a custom background dataset for
-                                  augmentation.                               
-  --augmentation-default-impulse-dataset / --augmentation-no-default-impulse-dataset
-                                  Use the default impulse dataset for      
                                   augmentation.  [default: augmentation-
-                                  default-impulse-dataset]                    
-  --augmentation-impulse-dataset TEXT                                              
-                                  Use a custom impulse dataset for                 
-                                  augmentation.                     
-  --augmentation-dataset-streaming / --augmentation-dataset-no-streaming      
+                                  default-background-dataset]
+  --augmentation-background-dataset TEXT
+                                  Use a custom background dataset for
+                                  augmentation.
+  --augmentation-default-impulse-dataset / --augmentation-no-default-impulse-dataset
+                                  Use the default impulse dataset for
+                                  augmentation.  [default: augmentation-
+                                  default-impulse-dataset]
+  --augmentation-impulse-dataset TEXT
+                                  Use a custom impulse dataset for
+                                  augmentation.
+  --augmentation-dataset-streaming / --augmentation-dataset-no-streaming
                                   Stream the augmentation datasets, instead of
                                   downloading first.  [default: augmentation-
                                   dataset-no-streaming]
-  --augmentation-seven-band-prob FLOAT                                             
-                                  Probability of applying the seven band           
+  --augmentation-seven-band-prob FLOAT
+                                  Probability of applying the seven band
                                   equalization augmentation.  [default: 0.25]
-  --augmentation-seven-band-gain-db FLOAT                                   
-                                  Gain in decibels for the seven band       
+  --augmentation-seven-band-gain-db FLOAT
+                                  Gain in decibels for the seven band
                                   equalization augmentation.  [default: 6.0]
 
-  --augmentation-tanh-distortion-prob FLOAT                                 
+  --augmentation-tanh-distortion-prob FLOAT
                                   Probability of applying the tanh distortion
-                                  augmentation.  [default: 0.25]          
-  --augmentation-tanh-distortion-min FLOAT                                  
+                                  augmentation.  [default: 0.25]
+  --augmentation-tanh-distortion-min FLOAT
                                   Minimum value for the tanh distortion
                                   augmentation.  [default: 0.0001]
-  --augmentation-tanh-distortion-max FLOAT                             
+  --augmentation-tanh-distortion-max FLOAT
                                   Maximum value for the tanh distortion
-                                  augmentation.  [default: 0.1]               
-  --augmentation-pitch-shift-prob FLOAT                                            
-                                  Probability of applying the pitch shift     
-                                  augmentation.  [default: 0.25]              
+                                  augmentation.  [default: 0.1]
+  --augmentation-pitch-shift-prob FLOAT
+                                  Probability of applying the pitch shift
+                                  augmentation.  [default: 0.25]
   --augmentation-pitch-shift-semitones INTEGER
-                                  Number of semitones to shift the pitch for  
+                                  Number of semitones to shift the pitch for
                                   the pitch shift augmentation.  [default: 3]
   --augmentation-band-stop-prob FLOAT
                                   Probability of applying the band stop filter
-                                  augmentation.  [default: 0.25]  
-  --augmentation-colored-noise-prob FLOAT 
-                                  Probability of applying the colored noise   
-                                  augmentation.  [default: 0.25]              
+                                  augmentation.  [default: 0.25]
+  --augmentation-colored-noise-prob FLOAT
+                                  Probability of applying the colored noise
+                                  augmentation.  [default: 0.25]
   --augmentation-colored-noise-min-snr-db FLOAT
-                                  Minimum signal-to-noise ratio for the       
+                                  Minimum signal-to-noise ratio for the
                                   colored noise augmentation.  [default: 10.0]
   --augmentation-colored-noise-max-snr-db FLOAT
-                                  Maximum signal-to-noise ratio for the       
+                                  Maximum signal-to-noise ratio for the
                                   colored noise augmentation.  [default: 30.0]
-  --augmentation-colored-noise-min-f-decay FLOAT           
+  --augmentation-colored-noise-min-f-decay FLOAT
                                   Minimum frequency decay for the colored
-                                  noise augmentation.  [default: -1.0]       
-  --augmentation-colored-noise-max-f-decay FLOAT                   
+                                  noise augmentation.  [default: -1.0]
+  --augmentation-colored-noise-max-f-decay FLOAT
                                   Maximum frequency decay for the colored
                                   noise augmentation.  [default: 2.0]
-  --augmentation-background-noise-prob FLOAT                           
+  --augmentation-background-noise-prob FLOAT
                                   Probability of applying the background noise
                                   augmentation.  [default: 0.75]
-  --augmentation-background-noise-min-snr-db FLOAT                         
-                                  Minimum signal-to-noise ratio for the    
+  --augmentation-background-noise-min-snr-db FLOAT
+                                  Minimum signal-to-noise ratio for the
                                   background noise augmentation.  [default:
                                   -10.0]
-  --augmentation-background-noise-max-snr-db FLOAT                            
-                                  Maximum signal-to-noise ratio for the    
+  --augmentation-background-noise-max-snr-db FLOAT
+                                  Maximum signal-to-noise ratio for the
                                   background noise augmentation.  [default:
                                   15.0]
-  --augmentation-gain-prob FLOAT  Probability of applying the gain            
-                                  augmentation.  [default: 1.0]             
-  --augmentation-reverb-prob FLOAT                                                 
+  --augmentation-gain-prob FLOAT  Probability of applying the gain
+                                  augmentation.  [default: 1.0]
+  --augmentation-reverb-prob FLOAT
                                   Probability of applying the reverb
-                                  augmentation.  [default: 0.75]              
+                                  augmentation.  [default: 0.75]
   --logging-steps INTEGER         How often to log step details.  [default: 1]
   --validation-steps INTEGER      How often to validate the model.  [default:
                                   250]
-  --checkpoint-steps INTEGER      How often to save the model.  [default:    
-                                  5000]                                            
-  --positive-samples INTEGER      Number of positive samples to use for    
+  --checkpoint-steps INTEGER      How often to save the model.  [default:
+                                  5000]
+  --positive-samples INTEGER      Number of positive samples to use for
                                   training. Will synthetically generate more
-                                  when needed.  [default: 100000]       
+                                  when needed.  [default: 100000]
   --adversarial-samples INTEGER   Number of adversarial samples to use for
                                   training. Will synthetically generate more
                                   when needed.  [default: 100000]
@@ -478,7 +478,7 @@ function samplesToBlob(audioSamples, sampleRate = 16000, numChannels = 1) {
         for (let i = 0; i < string.length; i++) {
             view.setUint8(offset + i, string.charCodeAt(i));
         }
-    };  
+    };
 
     // Helper to convert Float32Array to Int16Array (16-bit PCM)
     const floatTo16BitPCM = (output, offset, input) => {
@@ -486,13 +486,13 @@ function samplesToBlob(audioSamples, sampleRate = 16000, numChannels = 1) {
             let s = Math.max(-1, Math.min(1, input[i])); // Clamping to [-1, 1]
             output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true); // Convert to 16-bit PCM
         }
-    };  
+    };
 
     const byteRate = sampleRate * numChannels * 2; // 16-bit PCM = 2 bytes per sample
 
     // Calculate sizes
     const blockAlign = numChannels * 2; // 2 bytes per sample for 16-bit audio
-    const wavHeaderSize = 44; 
+    const wavHeaderSize = 44;
     const dataLength = audioSamples.length * numChannels * 2; // 16-bit PCM data length
     const buffer = new ArrayBuffer(wavHeaderSize + dataLength);
     const view = new DataView(buffer);
@@ -516,7 +516,7 @@ function samplesToBlob(audioSamples, sampleRate = 16000, numChannels = 1) {
     floatTo16BitPCM(view, wavHeaderSize, audioSamples);
 
     // Create and return the Blob
-    return new Blob([view], { type: 'audio/wav' }); 
+    return new Blob([view], { type: 'audio/wav' });
 }
 
 /**
@@ -575,13 +575,13 @@ function downloadBlob(blob, filename) {
 
 ```
 @misc{lin2020trainingkeywordspotterslimited,
-  title={Training Keyword Spotters with Limited and Synthesized Speech Data}, 
+  title={Training Keyword Spotters with Limited and Synthesized Speech Data},
   author={James Lin and Kevin Kilgour and Dominik Roblek and Matthew Sharifi},
   year={2020},
   eprint={2002.01322},
   archivePrefix={arXiv},
   primaryClass={eess.AS},
-  url={https://arxiv.org/abs/2002.01322}, 
+  url={https://arxiv.org/abs/2002.01322},
 }
 ```
 ```
@@ -666,7 +666,7 @@ function downloadBlob(blob, filename) {
 ```
 ```
 @misc{wang2024globe,
-  title={GLOBE: A High-quality English Corpus with Global Accents for Zero-shot Speaker Adaptive Text-to-Speech}, 
+  title={GLOBE: A High-quality English Corpus with Global Accents for Zero-shot Speaker Adaptive Text-to-Speech},
   author={Wenbin Wang and Yang Song and Sanjay Jha},
   year={2024},
   eprint={2406.14875},
@@ -714,13 +714,13 @@ function downloadBlob(blob, filename) {
 ```
 ```
 @misc{vansegbroeck2019dipcodinnerparty,
-  title={DiPCo -- Dinner Party Corpus}, 
+  title={DiPCo -- Dinner Party Corpus},
   author={Maarten Van Segbroeck and Ahmed Zaid and Ksenia Kutsenko and Cirenia Huerta and Tinh Nguyen and Xuewen Luo and Björn Hoffmeister and Jan Trmal and Maurizio Omologo and Roland Maas},
   year={2019},
   eprint={1909.13447},
   archivePrefix={arXiv},
   primaryClass={eess.AS},
-  url={https://arxiv.org/abs/1909.13447}, 
+  url={https://arxiv.org/abs/1909.13447},
 }
 ```
 ```
@@ -739,3 +739,5 @@ function downloadBlob(blob, filename) {
   type = {software},
 }
 ```
+
+bumpci
