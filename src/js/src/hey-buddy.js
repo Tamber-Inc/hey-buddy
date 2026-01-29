@@ -86,6 +86,7 @@ export class HeyBuddy {
         const embeddingWindowSize = options.embeddingWindowSize || 76;
         const embeddingWindowStride = options.embeddingWindowStride || 8;
         const wakeWordEmbeddingFrames = options.wakeWordEmbeddingFrames || 16;
+        const mediaStream = options.mediaStream || null;
 
         // Initialize shared models
         this.vad = new SileroVAD(vadModelPath, this.targetSampleRate, options.positiveVadThreshold, options.negativeVadThreshold, options.negativeVadCount);
@@ -137,7 +138,8 @@ export class HeyBuddy {
         this.batcher = new AudioBatcher(
             batchSeconds,
             batchIntervalSeconds,
-            targetSampleRate
+            targetSampleRate,
+            mediaStream
         );
         this.batcher.onBatch((batch) => this.process(batch));
     }
@@ -196,6 +198,18 @@ export class HeyBuddy {
      */
     onRecording(callback) {
         this.recordingCallbacks.push(callback);
+    }
+
+    /**
+     * Replace the active MediaStream used for audio input.
+     * @param {MediaStream} mediaStream - The new audio stream to use.
+     */
+    setMediaStream(mediaStream) {
+        if (!mediaStream) {
+            return;
+        }
+        this.batcher.setStream(mediaStream);
+        this.batcher.clearBuffer();
     }
 
     /**

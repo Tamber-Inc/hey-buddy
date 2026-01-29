@@ -7,6 +7,7 @@ declare module 'hey-buddy-onnx' {
     wakeWordThreshold?: number;
     debug?: boolean;
     record?: boolean;
+    mediaStream?: MediaStream;
   }
 
   export class HeyBuddy {
@@ -20,5 +21,6 @@ declare module 'hey-buddy-onnx' {
     onSpeechEnd(callback: () => void): void;
     pause(): void;
     unpause(): void;
+    setMediaStream(stream: MediaStream): void;
   }
 }

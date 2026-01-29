@@ -17,6 +17,7 @@ export class AudioBatcher {
         batchSeconds=2.0,
         batchIntervalSeconds=0.05, // 50ms
         targetSampleRate=16000,
+        mediaStream=null,
     ) {
         this.initialized = false;
         this.callbacks = [];
@@ -26,6 +27,8 @@ export class AudioBatcher {
         this.targetSampleRate = targetSampleRate;
         this.buffer = new Float32Array(this.batchSamples);
         this.buffer.fill(0);
+        this.stream = mediaStream;
+        this.ownsStream = !mediaStream;
         this.initialize();
     }
 
@@ -93,14 +96,17 @@ export class AudioBatcher {
         if (this.initialized) {
             return;
         }
-        this.stream = await navigator.mediaDevices.getUserMedia({
-            audio: {
-                channelCount: 1,
-                echoCancellation: true,
-                autoGainControl: true,
-                noiseSuppression: true,
-            }
-        });
+        if (!this.stream) {
+            this.stream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    channelCount: 1,
+                    echoCancellation: true,
+                    autoGainControl: true,
+                    noiseSuppression: true,
+                }
+            });
+            this.ownsStream = true;
+        }
         this.audioContext = new AudioContext();
         this.sourceNode = new MediaStreamAudioSourceNode(
             this.audioContext,
@@ -116,6 +122,34 @@ export class AudioBatcher {
         }
         this.clearBuffer();
         this.initialized = true;
+    }
+
+    /**
+     * Replace the active MediaStream used for audio input.
+     * @param {MediaStream} mediaStream - The new audio stream to use.
+     */
+    setStream(mediaStream) {
+        if (!mediaStream) {
+            return;
+        }
+        if (this.ownsStream && this.stream) {
+            this.stream.getTracks().forEach((track) => track.stop());
+        }
+        this.stream = mediaStream;
+        this.ownsStream = false;
+
+        if (!this.initialized || !this.audioContext) {
+            return;
+        }
+        if (this.sourceNode) {
+            this.sourceNode.disconnect();
+        }
+        this.sourceNode = new MediaStreamAudioSourceNode(
+            this.audioContext,
+            { mediaStream: this.stream }
+        );
+        this.sourceNode.connect(this.workerNode.worker);
+        this.clearBuffer();
     }
 }
 
