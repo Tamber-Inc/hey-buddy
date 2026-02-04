@@ -169,6 +169,17 @@ export class HeyBuddy {
     }
 
     /**
+     * Clear all callbacks (useful for re-registration without leaking).
+     */
+    clearCallbacks() {
+        this.speechStartCallbacks = [];
+        this.speechEndCallbacks = [];
+        this.recordingCallbacks = [];
+        this.processedCallbacks = [];
+        this.detectedCallbacks = [];
+    }
+
+    /**
      * Add a callback for processed data.
      * @param {Function} callback - Callback function.
      */
@@ -296,7 +307,7 @@ export class HeyBuddy {
 
         for (let {names, callback} of this.detectedCallbacks) {
             if (Array.isArray(names) && names.includes(name) || names === name) {
-                callback();
+                callback(name);
             }
         }
     }
