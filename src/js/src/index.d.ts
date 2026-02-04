@@ -14,11 +14,12 @@ declare module 'hey-buddy-onnx' {
     constructor(config: HeyBuddyConfig);
     wakeWords: Record<string, any>;
     paused: boolean;
-    onDetected(wakeWord: string, callback: () => void): void;
+    onDetected(wakeWord: string | string[], callback: (detectedWakeWord: string) => void): void;
     onRecording(callback: (audio: Float32Array) => void): void;
     onProcessed(callback: (result: any) => void): void;
     onSpeechStart(callback: () => void): void;
     onSpeechEnd(callback: () => void): void;
+    clearCallbacks(): void;
     pause(): void;
     unpause(): void;
     setMediaStream(stream: MediaStream): void;
