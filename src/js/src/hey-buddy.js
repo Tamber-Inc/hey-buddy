@@ -328,9 +328,12 @@ export class HeyBuddy {
      * @returns {Promise} - Promise that resolves when wake word detection is complete.
      */
     async checkWakeWordSubset(wakeWordNames) {
-        return await Promise.all(
-            wakeWordNames.map(name => this.wakeWords[name].checkWakeWordCalled(this.embeddingBuffer))
-        );
+        // Run sequentially to avoid ONNX "Session already started" errors
+        const results = [];
+        for (const name of wakeWordNames) {
+            results.push(await this.wakeWords[name].checkWakeWordCalled(this.embeddingBuffer));
+        }
+        return results;
     }
 
     /**
