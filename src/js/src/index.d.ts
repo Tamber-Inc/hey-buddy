@@ -1,10 +1,14 @@
 declare module 'hey-buddy-onnx' {
+  interface WakeWordModel {
+    url: string;
+    threshold: number;
+  }
+
   interface HeyBuddyConfig {
-    modelPath: string | string[];
+    models: WakeWordModel[];
     vadModelPath?: string;
     embeddingModelPath?: string;
     spectrogramModelPath?: string;
-    wakeWordThreshold?: number;
     debug?: boolean;
     record?: boolean;
     mediaStream?: MediaStream;

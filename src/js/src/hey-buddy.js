@@ -48,8 +48,7 @@ export class HeyBuddy {
      * @param {number} [options.negativeVadThreshold=0.25] - VAD threshold for silence.
      * @param {number} [options.negativeVadCount=8] - Number of negative VADs to trigger silence.
      * @param {number} [options.wakeWordThreads=4] - Number of threads for wake word detection.
-     * @param {number} [options.wakeWordThreshold=0.5] - Wake word detection threshold.
-     * @param {string|string[]} [options.modelPath="/models/hey-buddy.onnx"] - Path to wake word model.
+     * @param {{url: string, threshold: number}[]} options.models - Wake word models with thresholds.
      * @param {string} [options.vadModelPath="/pretrained/silero-vad.onnx"] - Path to VAD model.
      * @param {string} [options.embeddingModelPath="/pretrained/speech-embedding.onnx"] - Path to speech embedding model.
      * @param {string} [options.spectrogramModelPath="/pretrained/mel-spectrogram.onnx"] - Path to mel spectrogram model.
@@ -69,12 +68,10 @@ export class HeyBuddy {
         options.negativeVadThreshold = options.negativeVadThreshold || 0.4;
         options.negativeVadCount = options.negativeVadCount || 8;
         this.wakeWordThreads = options.wakeWordThreads || 4;
-        this.wakeWordThreshold = options.wakeWordThreshold || 0.5;
         this.wakeWordInterval = options.wakeWordInterval || 2.0; // How often a wake word can be uttered
 
-        // Get options or use defaults for models
-        const modelPath = options.modelPath || "/models/hey-buddy.onnx";
-        const modelArray = Array.isArray(modelPath) ? modelPath : [modelPath];
+        // Wake word models: [{url, threshold}, ...]
+        const models = options.models || [];
         const vadModelPath = options.vadModelPath || "/pretrained/silero-vad.onnx";
         const embeddingModelPath = options.embeddingModelPath || "/pretrained/speech-embedding.onnx";
         const spectrogramModelPath = options.spectrogramModelPath || "/pretrained/mel-spectrogram.onnx";
@@ -113,9 +110,9 @@ export class HeyBuddy {
         this.wakeWords = {};
         this.wakeWordTimes = {};
         this.wakeWordEmbeddingFrames = wakeWordEmbeddingFrames;
-        for (let model of modelArray) {
-            let modelName = model.split("/").pop().split(".")[0];
-            this.wakeWords[modelName] = new WakeWord(model, this.wakeWordThreshold);
+        for (let { url, threshold } of models) {
+            let modelName = url.split("/").pop().split(".")[0];
+            this.wakeWords[modelName] = new WakeWord(url, threshold);
             this.wakeWords[modelName].test(this.debug);
         }
 
