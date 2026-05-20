@@ -6,7 +6,7 @@ from setuptools import find_packages, setup
 
 deps = [
     "audiomentations", "click", "datasets", "librosa", "matplotlib",
-    "monotonic_align", "onnx", "onnxruntime", "phonemizer",
+    "monotonic_align @ git+https://github.com/resemble-ai/monotonic_align.git", "onnx", "onnxruntime", "phonemizer",
     "pronouncing", "psutil", "av", "requests", "safetensors",
     "soundfile", "speechbrain", "tokenizers", "torch", "torch_audiomentations",
     "torchaudio", "torchmetrics", "tqdm", "wandb"

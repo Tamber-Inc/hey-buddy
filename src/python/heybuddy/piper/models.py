@@ -14,7 +14,7 @@ from torch.nn.utils import remove_weight_norm, weight_norm
 try:
     from monotonic_align import maximum_path # type: ignore[import-untyped]
 except ImportError:
-    sys.stderr.write("monotonic_align not found. Please install it using `pip install pip install git+https://github.com/resemble-ai/monotonic_align.git`\n")
+    sys.stderr.write("monotonic_align not found. Please install it using `pip install git+https://github.com/resemble-ai/monotonic_align.git`\n")
     sys.stderr.flush()
     raise
 

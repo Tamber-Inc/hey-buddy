@@ -29,7 +29,7 @@ dependencies:
     - torchmetrics>=1.4
     - tqdm>=4.65
     - wandb>=0.18
-    - monotonic_align>=1.0
+    - monotonic_align @ git+https://github.com/resemble-ai/monotonic_align.git
     - safetensors>=0.4
     - phonemizer>=3.0
     - https://github.com/rhasspy/piper-phonemize/releases/download/v1.1.0/piper_phonemize-1.1.0-cp310-cp310-manylinux_2_28_x86_64.whl
