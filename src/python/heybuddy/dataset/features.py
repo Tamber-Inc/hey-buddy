@@ -679,6 +679,7 @@ class TrainingFeaturesGenerator:
         """
         name = cls.get_wake_phrase_file_name(wake_phrase, testing=testing)
         adversarial_name = f"{name}_adv"
+        existing_adversarial_dataset: Optional[PrecalculatedDatasetIterator] = None
 
         existing_embeddings = 0
         existing_adversarial_embeddings = 0
@@ -768,7 +769,13 @@ class TrainingFeaturesGenerator:
         gc.collect()
 
         # Generate adversarial if needed
-        if existing_adversarial_embeddings < num_adversarial_samples:
+        if num_adversarial_samples <= 0:
+            adversarial_iterator = PrecalculatedDatasetIterator.from_array(
+                np.empty((0, 16, 96), dtype=np.float32),
+                name=adversarial_name,
+                keep_in_memory=keep_in_memory
+            )
+        elif existing_adversarial_embeddings < num_adversarial_samples:
             adversarial = cls.default(
                 wake_phrase,
                 adversarial=True,

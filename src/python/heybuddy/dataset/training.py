@@ -395,7 +395,9 @@ class WakeWordTrainingDatasetIterator(TrainingDatasetIterator):
             augment_reverb_prob=augment_reverb_prob,
         )
         positive_list = [(positive_features, positive_per_batch)]
-        negative_list = [(adversarial_features, adversarial_per_batch)]
+        negative_list = []
+        if num_adversarial_samples > 0 and adversarial_per_batch > 0:
+            negative_list.append((adversarial_features, adversarial_per_batch))
 
         if additional_wake_phrases:
             for i, additional_wake_phrase in enumerate(additional_wake_phrases):
@@ -431,7 +433,8 @@ class WakeWordTrainingDatasetIterator(TrainingDatasetIterator):
                     augment_reverb_prob=augment_reverb_prob,
                 )
                 positive_list.append((additional_positive_features, positive_per_batch))
-                negative_list.append((additional_adversarial_features, adversarial_per_batch))
+                if num_adversarial_samples > 0 and adversarial_per_batch > 0:
+                    negative_list.append((additional_adversarial_features, adversarial_per_batch))
 
         if large_training:
             this_per_batch = negative_per_batch if not medium_training else int(negative_per_batch * 2 / 3)
@@ -579,7 +582,9 @@ class WakeWordTrainingDatasetIterator(TrainingDatasetIterator):
             augment_reverb_prob=augment_reverb_prob,
         )
         positive_list = [(positive_features, positive_per_batch)]
-        negative_list = [(adversarial_features, adversarial_per_batch)]
+        negative_list = []
+        if num_adversarial_samples > 0 and adversarial_per_batch > 0:
+            negative_list.append((adversarial_features, adversarial_per_batch))
 
         if additional_wake_phrases:
             for i, additional_wake_phrase in enumerate(additional_wake_phrases):
@@ -616,7 +621,8 @@ class WakeWordTrainingDatasetIterator(TrainingDatasetIterator):
                     augment_reverb_prob=augment_reverb_prob,
                 )
                 positive_list.append((additional_positive_features, positive_per_batch))
-                negative_list.append((additional_adversarial_features, adversarial_per_batch))
+                if num_adversarial_samples > 0 and adversarial_per_batch > 0:
+                    negative_list.append((additional_adversarial_features, adversarial_per_batch))
 
         return cls(
             positive=positive_list,
