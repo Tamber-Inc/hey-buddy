@@ -318,6 +318,9 @@ def train(
     """
     Trains a wake word detection model.
     """
+    if architecture is False:
+        architecture = DEFAULT_ARCHITECTURE
+
     phrase_augment_words = []
     augment_background_datasets = []
     augment_impulse_datasets = []
