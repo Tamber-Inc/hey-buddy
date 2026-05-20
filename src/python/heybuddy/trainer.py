@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import gc
+import re
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -44,6 +45,7 @@ class Trainer(nn.Module):
         self.model = self.create_model(**model_kwargs)
         self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate) # type: ignore[attr-defined]
         self.learning_rate = learning_rate
+        self.wandb_run: Optional[Any] = None
 
     def create_model(self, **kwargs: Any) -> nn.Module:
         """
@@ -187,15 +189,88 @@ class Trainer(nn.Module):
         self,
         name: str,
         optimizer: bool=True,
+        epoch: Optional[int]=None,
+        step: Optional[int]=None,
     ) -> None:
         """
         Save a checkpoint of the model.
         """
         checkpoint_path = os.path.join(self.checkpoint_dir, f"{name}.pt")
         torch.save(self.model.state_dict(), checkpoint_path)
+        optimizer_path: Optional[str] = None
         if optimizer:
             optimizer_path = os.path.join(self.checkpoint_dir, f"{name}_optimizer.pt")
             torch.save(self.optimizer.state_dict(), optimizer_path)
+        self.save_checkpoint_to_wandb(
+            name=name,
+            checkpoint_path=checkpoint_path,
+            optimizer_path=optimizer_path,
+            epoch=epoch,
+            step=step,
+        )
+
+    def get_checkpoint_artifact_name(
+        self,
+        name: str,
+        epoch: Optional[int]=None,
+        step: Optional[int]=None,
+    ) -> str:
+        """
+        Build a traceable artifact name for a checkpoint upload.
+        """
+        artifact_name = f"{name}-checkpoint"
+        if epoch is not None:
+            artifact_name = f"{artifact_name}-epoch-{epoch}"
+        if step is not None:
+            artifact_name = f"{artifact_name}-step-{step}"
+        elif name.endswith("_final"):
+            artifact_name = f"{artifact_name}-final"
+        return re.sub(r"[^A-Za-z0-9._-]+", "-", artifact_name).strip("-")
+
+    def save_checkpoint_to_wandb(
+        self,
+        name: str,
+        checkpoint_path: str,
+        optimizer_path: Optional[str]=None,
+        epoch: Optional[int]=None,
+        step: Optional[int]=None,
+    ) -> None:
+        """
+        Mirror a saved checkpoint to Weights & Biases as a versioned artifact.
+        """
+        if self.wandb_run is None:
+            return
+
+        artifact_name = self.get_checkpoint_artifact_name(
+            name=name,
+            epoch=epoch,
+            step=step,
+        )
+        artifact = wandb.Artifact(
+            name=artifact_name,
+            type="model",
+            metadata={
+                "checkpoint_name": name,
+                "checkpoint_file": os.path.basename(checkpoint_path),
+                "optimizer_file": None if optimizer_path is None else os.path.basename(optimizer_path),
+                "epoch": epoch,
+                "step": step,
+            },
+        )
+        artifact.add_file(checkpoint_path, name=os.path.basename(checkpoint_path))
+        if optimizer_path is not None:
+            artifact.add_file(optimizer_path, name=os.path.basename(optimizer_path))
+
+        aliases = ["latest"]
+        if epoch is not None:
+            aliases.append(f"epoch-{epoch}")
+        if step is not None:
+            aliases.append(f"step-{step}")
+        if name.endswith("_final"):
+            aliases.append("final")
+
+        self.wandb_run.log_artifact(artifact, aliases=sorted(set(aliases)))
+        logger.info(f"Uploaded checkpoint artifact '{artifact_name}' to W&B.")
 
     def __call__(self, training: DatasetType, **kwargs: Any) -> None:
         """
@@ -316,6 +391,7 @@ class WakeWordTrainer(Trainer):
         training: DatasetType,
         validation: Optional[DatasetType]=None,
         testing: Optional[DatasetType]=None,
+        epoch: Optional[int]=None,
         num_steps: int=DEFAULT_STEPS,
         warmup_steps: int=DEFAULT_WARMUP_STEPS, # Recommened to be 20% of num_steps
         hold_steps: int=DEFAULT_HOLD_STEPS, # Recommened to be 1/3 of num_steps
@@ -587,7 +663,11 @@ class WakeWordTrainer(Trainer):
                 wandb.log(step_details)
 
             if step > 0 and step % checkpoint_steps == 0:
-                self.save_checkpoint(f"{name}_{step}")
+                self.save_checkpoint(
+                    f"{name}_{step}",
+                    epoch=epoch,
+                    step=step,
+                )
 
             gc.collect()
             torch.cuda.empty_cache()
@@ -782,6 +862,7 @@ class WakeWordTrainer(Trainer):
         high_loss_threshold: float=DEFAULT_HIGH_LOSS_THRESHOLD, # Threshold for high loss rate
         activation_threshold: float=DEFAULT_ACTIVATION_THRESHOLD, # Threshold for activation
         wandb_entity: Optional[str]=None, # W&B entity
+        wandb_api_key: Optional[str]=None, # W&B API key
         name: str="heybuddy",
         **kwargs: Any,
     ) -> None:
@@ -813,12 +894,18 @@ class WakeWordTrainer(Trainer):
         if isinstance(testing, TrainingDatasetIterator):
             testing.start()
 
+        use_wandb = wandb_entity is not None or wandb_api_key is not None
+
         # Start W&B run
-        if wandb_entity is not None:
-            wandb.init(
-                project=f"hey-buddy-{name}",
-                entity=wandb_entity,
-                config={
+        if use_wandb:
+            if wandb_api_key is not None:
+                wandb.login(key=wandb_api_key, relogin=True)
+            else:
+                wandb.login()
+
+            init_kwargs: Dict[str, Any] = {
+                "project": f"hey-buddy-{name}",
+                "config": {
                     "num_steps": num_steps,
                     "num_stages": num_stages,
                     "num_params": sum(p.numel() for p in self.model.parameters()),
@@ -842,8 +929,11 @@ class WakeWordTrainer(Trainer):
                     "training_dataset": training.metadata() if isinstance(training, TrainingDatasetIterator) else len(training),
                     "validation_dataset": validation.metadata() if isinstance(validation, TrainingDatasetIterator) else len(validation) if validation is not None else None,
                     "testing_dataset": testing.metadata() if isinstance(testing, TrainingDatasetIterator) else len(testing) if testing is not None else None,
-                }
-            )
+                },
+            }
+            if wandb_entity is not None:
+                init_kwargs["entity"] = wandb_entity
+            self.wandb_run = wandb.init(**init_kwargs)
 
         for i in range(num_stages):
             if dynamic_negative_weight:
@@ -858,6 +948,7 @@ class WakeWordTrainer(Trainer):
                 training,
                 validation=validation,
                 testing=testing,
+                epoch=i+1,
                 num_steps=num_steps,
                 negative_weight_schedule=weights,
                 negative_weight_adjust_ratio=epoch_negative_weight_adjust_ratio,
@@ -880,7 +971,7 @@ class WakeWordTrainer(Trainer):
                 last_testing_accuracy=0.0 if not testing_accuracy_history else float(testing_accuracy_history[-1][-1]), # type: ignore[index]
                 last_testing_recall=0.0 if not testing_recall_history else float(testing_recall_history[-1][-1]), # type: ignore[index]
                 last_testing_false_positive_rate=0.0 if not testing_false_positive_rate_history else float(testing_false_positive_rate_history[-1][-1]), # type: ignore[index]
-                use_wandb=wandb_entity is not None,
+                use_wandb=use_wandb,
             )
             stage_duration = perf_counter() - stage_start_time
 
@@ -996,7 +1087,14 @@ class WakeWordTrainer(Trainer):
             duration=total_duration,
         )
 
-        self.save_checkpoint(f"{name}_final")
+        self.save_checkpoint(
+            f"{name}_final",
+            epoch=num_stages,
+        )
+
+        if self.wandb_run is not None:
+            wandb.finish()
+            self.wandb_run = None
 
         # Make sure dataset batchers are stopped
         if isinstance(training, TrainingDatasetIterator):

@@ -172,6 +172,7 @@ def combine(
 @click.argument("phrase", type=str, nargs=1)
 @click.option("--additional-phrase", type=str, default=None, multiple=True, help="Additional phrases to use for training.", show_default=True)
 @click.option("--wandb-entity", type=str, default=None, help="W&B entity to use for logging.", show_default=True)
+@click.option("--wandb-api-key", type=str, default=None, envvar="WANDB_API_KEY", help="W&B API key used to log in before training starts.", show_default=False)
 @click.option("--perceptron", "architecture", flag_value="perceptron", default=DEFAULT_ARCHITECTURE=="perceptron", help="Use a perceptron architecture.", show_default=True)
 @click.option("--transformer", "architecture", flag_value="transformer", default=DEFAULT_ARCHITECTURE=="transformer", help="Use a transformer architecture.", show_default=True)
 @click.option("--use-half-layers/--no-use-half-layers", default=DEFAULT_USE_HALF_LAYERS, is_flag=True, help="Use enumerated striped-attention layers for the perceptron model.", show_default=True)
@@ -246,6 +247,7 @@ def train(
     phrase: str,
     additional_phrase: List[str]=[],
     wandb_entity: Optional[str]=None,
+    wandb_api_key: Optional[str]=None,
     architecture: str=DEFAULT_ARCHITECTURE,
     use_half_layers: bool=DEFAULT_USE_HALF_LAYERS,
     use_gating: bool=DEFAULT_USE_GATING,
@@ -425,6 +427,7 @@ def train(
             training=training,
             validation=validation,
             validation_steps=validation_steps,
+            wandb_api_key=wandb_api_key,
             wandb_entity=wandb_entity,
         )
 
